@@ -3797,8 +3797,8 @@ pub const Color = struct {
     pub fn fromHex(input: []const u8) !Color {
         // Trim the beginning '#' if it exists
         const trimmed = if (input.len != 0 and input[0] == '#') input[1..] else input;
-
-        // We expect exactly 6 for RRGGBB
+        // Expand short hex values to full hex values
+        if (trimmed.len == 3) return fromHex(.{ trimmed[0], trimmed[0], trimmed[1], trimmed[1], trimmed[2], trimmed[2] });
         if (trimmed.len != 6) return error.InvalidValue;
 
         // Parse the colors two at a time.
@@ -3827,6 +3827,8 @@ pub const Color = struct {
         try testing.expectEqual(Color{ .r = 10, .g = 11, .b = 12 }, try Color.fromHex("#0A0B0C"));
         try testing.expectEqual(Color{ .r = 10, .g = 11, .b = 12 }, try Color.fromHex("0A0B0C"));
         try testing.expectEqual(Color{ .r = 255, .g = 255, .b = 255 }, try Color.fromHex("FFFFFF"));
+        try testing.expectEqual(Color{ .r = 51, .g = 51, .b = 51 }, try Color.fromHex("#333"));
+        try testing.expectEqual(Color{ .r = 255, .g = 255, .b = 255 }, try Color.fromHex("#FFF"));
     }
 
     test "parseCLI from name" {
